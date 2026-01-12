@@ -11,8 +11,7 @@ export default function CustomerScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    // SAFE CHECK: Trim removes spaces. prevents "   " being saved as a name.
-    if (!name.trim) {
+    if (!name.trim()) {
       Alert.alert('Missing Info', 'Name is required.');
       return;
     }
@@ -24,7 +23,7 @@ export default function CustomerScreen() {
         phone: phone.trim(), 
         address: address.trim(), 
         email: email.trim(),
-        createdAt: new Date().toISOString() // Save date as string to be safe
+        createdAt: new Date().toISOString() 
       });
       Alert.alert('Success', 'Customer Saved!');
       setName(''); setPhone(''); setAddress(''); setEmail('');

@@ -1,62 +1,152 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, Card, Text } from 'react-native-paper';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Button, Text, Surface } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
-export default function HistoryHubScreen({ navigation }) {
+const HistoryHubScreen = () => {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>View Customers</Text>
-          <Text style={styles.cardSubtitle}>Edit or delete existing customer details.</Text>
-          <Button
-            mode="contained"
-            icon="account-group"
-            onPress={() => navigation.navigate('ViewCustomers')}
-            style={styles.button}
-          >
-            Manage Customers
-          </Button>
-        </Card.Content>
-      </Card>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header Section */}
+      <Surface style={styles.headerSurface} elevation={4}>
+        <Text variant="headlineSmall" style={styles.headerTitle}>
+          History & Management
+        </Text>
+        <Text variant="bodyMedium" style={styles.headerSubtitle}>
+          View records, manage data & reports
+        </Text>
+      </Surface>
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>View Equipment</Text>
-          <Text style={styles.cardSubtitle}>Update stock, prices, or remove equipment.</Text>
-          <Button
-            mode="contained"
-            icon="clipboard-list"
-            onPress={() => navigation.navigate('ViewEquipment')}
-            style={styles.button}
-          >
-            Manage Inventory
-          </Button>
-        </Card.Content>
-      </Card>
+      {/* Management Section */}
+      <Surface style={styles.sectionSurface} elevation={2}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Data Management
+        </Text>
+        
+        <Button
+          icon="account-group"
+          mode="contained"
+          onPress={() => navigation.navigate('ViewCustomers')}
+          style={[styles.button, styles.customerBtn]}
+          contentStyle={styles.btnContent}
+          labelStyle={styles.btnLabel}
+        >
+          View Customers
+        </Button>
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>Billing Summary</Text>
-          <Text style={styles.cardSubtitle}>View past invoices within a date range.</Text>
-          <Button
-            mode="contained"
-            icon="history"
-            onPress={() => navigation.navigate('Reports')}
-            style={styles.button}
-          >
-            View Invoice History
-          </Button>
-        </Card.Content>
-      </Card>
-    </View>
+        <Button
+          icon="package-variant"
+          mode="contained"
+          onPress={() => navigation.navigate('ViewEquipment')}
+          style={[styles.button, styles.inventoryBtn]}
+          contentStyle={styles.btnContent}
+          labelStyle={styles.btnLabel}
+        >
+          View Inventory
+        </Button>
+      </Surface>
+
+      {/* Billing Section */}
+      <Surface style={styles.sectionSurface} elevation={2}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Billing & Reports
+        </Text>
+
+        <Button
+          icon="file-document-edit-outline"
+          mode="contained"
+          onPress={() => navigation.navigate('UnfinishedBills')}
+          style={[styles.button, styles.unfinishedBtn]}
+          contentStyle={styles.btnContent}
+          labelStyle={styles.btnLabel}
+        >
+          View Unfinished Bills
+        </Button>
+
+        <Button
+          icon="chart-bar"
+          mode="contained"
+          onPress={() => navigation.navigate('Reports')}
+          style={[styles.button, styles.reportBtn]}
+          contentStyle={styles.btnContent}
+          labelStyle={styles.btnLabel}
+        >
+          Billing Reports
+        </Button>
+      </Surface>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15, backgroundColor: '#f5f5f5' },
-  card: { marginBottom: 20, backgroundColor: 'white' },
-  cardTitle: { marginBottom: 5 },
-  cardSubtitle: { marginBottom: 15, color: '#666' },
-  button: { borderRadius: 8 },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  content: {
+    padding: 16,
+  },
+  headerSurface: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#081f88ff',
+  },
+  headerTitle: {
+    fontWeight: 'bold',
+    color: '#081f88ff',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    color: '#666',
+    textAlign: 'center',
+  },
+  sectionSurface: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  sectionTitle: {
+    fontWeight: '600',
+    color: '#37474f',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  button: {
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  btnContent: {
+    paddingVertical: 6,
+  },
+  btnLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  customerBtn: {
+    backgroundColor: '#2563EB',
+  },
+  inventoryBtn: {
+    backgroundColor: '#ff6d00',
+  },
+  unfinishedBtn: {
+    backgroundColor: '#F59E0B',
+  },
+  reportBtn: {
+    backgroundColor: '#00c853',
+  },
 });
+
+export default HistoryHubScreen;

@@ -48,7 +48,7 @@ export default function HomeScreen({ navigation }) {
                 onPress={() => navigation.navigate('Customers')}
               >
                 Customer Registration
-              </Button>2
+              </Button>
               <Text variant="bodySmall" style={styles.btnDescription}>
                 Register new customers with contact details
               </Text>

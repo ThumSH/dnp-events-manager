@@ -6,7 +6,7 @@ const CUSTOMERS_KEY = 'customers';
 const EQUIPMENT_KEY = 'equipment';
 const BILLING_KEY = 'billing';
 
-// Helper function to get items from storage
+
 const getItems = async (key) => {
   try {
     const jsonValue = await AsyncStorage.getItem(key);
@@ -17,7 +17,7 @@ const getItems = async (key) => {
   }
 };
 
-// Helper function to save items to storage
+
 const saveItems = async (key, value) => {
   try {
     const jsonValue = JSON.stringify(value);
@@ -33,7 +33,7 @@ export const getCustomers = () => getItems(CUSTOMERS_KEY);
 export const addCustomer = async (customerData) => {
   const customers = await getCustomers();
   const newCustomer = {
-    id: uuidv4(), // Assign a unique ID
+    id: uuidv4(), 
     ...customerData,
   };
   const updatedCustomers = [...customers, newCustomer];
@@ -80,7 +80,7 @@ export const deleteEquipment = async (equipmentId) => {
     await saveItems(EQUIPMENT_KEY, updatedEquipment);
 };
 
-// You can add updateEquipment and deleteEquipment similar to customer functions
+
 
 /* Billing Management */
 export const getInvoices = () => getItems(BILLING_KEY);

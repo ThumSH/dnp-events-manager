@@ -48,16 +48,15 @@ export default function ReportsScreen() {
 
    const fetchInvoices = async (start, end) => {
 
-
-    const startOfDay = new Date(start);
-    startOfDay.setHours(0, 0, 0, 0); 
-
-
-    const endOfDay = new Date(end);
-    endOfDay.setHours(23, 59, 59, 999); 
-
-
-    if (startOfDay > endOfDay) {
+    // Use a copy to avoid mutating state
+    const rangeStart = new Date(start);
+    const rangeEnd = new Date(end);
+    
+    // Set time to the beginning of the day for start date and end of the day for end date
+    rangeStart.setHours(0, 0, 0, 0);
+    rangeEnd.setHours(23, 59, 59, 999);
+    
+    if (rangeStart > rangeEnd) {
       Alert.alert("Invalid Date Range", "Start date cannot be after the end date.");
       return;
     }
@@ -69,17 +68,11 @@ export default function ReportsScreen() {
       const allInvoices = await getInvoices();
       
       const filteredInvoices = allInvoices.filter(invoice => {
-        if (!invoice.createdAt) return false;
+        if (!invoice.createdAt) return false; // Filter by the actual creation date
         
-
-        const invoiceDate = new Date(invoice.createdAt);
-        
-
-        const iTime = invoiceDate.setHours(0,0,0,0);
-        const sTime = new Date(startOfDay).setHours(0,0,0,0);
-        const eTime = new Date(endOfDay).setHours(0,0,0,0);
-
-        return iTime >= sTime && iTime <= eTime;
+        const invoiceCreationDate = new Date(invoice.createdAt); // Use createdAt for comparison
+        // Compare timestamps directly
+        return invoiceCreationDate >= rangeStart && invoiceCreationDate <= rangeEnd;
       });
 
       // Sort by date descending
@@ -103,39 +96,83 @@ export default function ReportsScreen() {
   const generateAndSharePdfForInvoice = async (invoice) => {
     if (!invoice) return;
 
-    const html = `
+    // Use billDate for consistency
+    const formattedDate = new Date(invoice.billDate).toLocaleDateString('en-GB');
+
+    const subTotal = invoice.items.reduce((acc, item) => acc + (item.subTotal || 0), 0);
+    const globalDiscountPercentage = invoice.discountPercentage || 0;
+    const totalDiscount = subTotal * (globalDiscountPercentage / 100);
+    const grandTotal = subTotal - totalDiscount;
+
+const html = `
       <html>
-        <body style="padding: 40px; font-family: Helvetica, sans-serif;">
-                    <div style="text-align: center; margin-bottom: 40px;">
-            <h1 style="color: #0e96b8ff; margin:0;">DNP EVENT ORGANIZING</h1>
-            <p style="margin:5px; color: #666;">Rentals & Sales Invoice</p>
+        <body style="padding: 25px; font-family: Helvetica, sans-serif; font-size: 12px; color: #333;">
+          
+          <div style="text-align: center; margin-bottom: 10px;">
+            <h1 style="color: #0e96b8ff; margin: 0; font-size: 16px;">DNP EVENT ORGANIZING</h1>
+            <p style="margin: 2px; color: #666; font-size: 11px;">Rentals & Sales Invoice</p>
+            <hr style="border: none; border-top: 1px solid #b0e0e6; margin-top: 5px; margin-bottom: 5px;" />
           </div>
-          <div style="margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px;">
-            <strong>Invoice No:</strong> #${invoice.invoiceNumber || 'N/A'}<br/>
-            <strong>Customer:</strong> ${invoice.customerName || 'Valued Customer'}<br/>
-            <strong>Date Created:</strong> ${new Date(invoice.createdAt).toLocaleDateString()}
+
+          <div style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
+            <div style="font-size: 12px; line-height: 1.6;">
+              <strong>Invoice No:</strong> #${invoice.invoiceNumber || 'N/A'}<br/>
+              <strong>Customer:</strong> ${invoice.customerName || 'Valued Customer'}<br/>
+              <strong>Date:</strong> ${formattedDate}
+            </div>
           </div>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr style="background: #f3f3f3;">
-              <th style="padding: 10px; text-align: left;">Item</th>
-              <th style="padding: 10px; text-align: left;">Date</th>
-              <th style="padding: 10px;">Qty</th>
-              <th style="padding: 10px; text-align: right;">Price</th>
-              <th style="padding: 10px; text-align: right;">Amount</th>
-            </tr>
-            ${(invoice.items || []).map(item => `
-              <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.date}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Rs. ${Number(item.price).toFixed(2)}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">Rs. ${Number(item.total).toFixed(2)}</td>
-              </tr>
-            `).join('')}
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;">
+            <thead>
+                <tr style="background: #f3f3f3;">
+                  <th style="padding: 5px; text-align: left; border: 1px solid #ddd; width: 30%;">Item</th>
+                  <th style="padding: 5px; text-align: center; border: 1px solid #ddd;">Qty</th>
+                  <th style="padding: 5px; text-align: right; border: 1px solid #ddd;">Price(RS)</th>
+                  <th style="padding: 5px; text-align: right; border: 1px solid #ddd;">Amount(RS)</th>
+                  <th style="padding: 5px; text-align: center; border: 1px solid #ddd;">Usage Days</th>
+                  <th style="padding: 5px; text-align: right; border: 1px solid #ddd;">Total(RS)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${(invoice.items || []).map(item => `
+                  <tr>
+                    <td style="padding: 4px 5px; text-align: left; border: 1px solid #ddd;">
+                      <span style="font-weight: 500;">${item.name}</span>
+                      ${item.description ? `<span style="color: #666; font-style: italic; font-size: 10px;"> - ${item.description}</span>` : ''}
+                    </td>
+                    <td style="padding: 4px 5px; text-align: center; border: 1px solid #ddd;">${item.qty}</td>
+                    <td style="padding: 4px 5px; text-align: right; border: 1px solid #ddd;">${Number(item.price).toFixed(2)}</td>
+                    <td style="padding: 4px 5px; text-align: right; border: 1px solid #ddd;">${Number(item.price * item.qty).toFixed(2)}</td>
+                    <td style="padding: 4px 5px; text-align: center; border: 1px solid #ddd;">${item.usageDays}</td>
+                    <td style="padding: 4px 5px; text-align: right; border: 1px solid #ddd;">${Number(item.subTotal).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+            </tbody>
           </table>
-          <div style="text-align: right; margin-top: 30px;">
-            <h2 style="display: inline-block; padding-bottom: 4px; border-bottom: 3px double #333;">Total: Rs. ${Number(invoice.total).toFixed(2)}</h2>
+
+          <div style="width: 100%; margin-top: 10px;">
+            <table align="right" style="width: auto; border-collapse: collapse; font-size: 12px;">
+                
+                <tr>
+                    <td style="padding: 4px 10px 4px 0; text-align: right;">Total Amount:</td>
+                    <td style="padding: 4px 5px; text-align: right; width: 120px;">Rs. ${Number(subTotal).toFixed(2)}</td>
+                </tr>
+
+                ${totalDiscount > 0 ? `
+                <tr>
+                    <td style="padding: 4px 10px 4px 0; text-align: right; color: #d9534f;">Less: Discount (${globalDiscountPercentage}%):</td>
+                    <td style="padding: 4px 5px; text-align: right; width: 120px; color: #d9534f;">Rs. ${Number(totalDiscount).toFixed(2)}</td>
+                </tr>` : ''}
+
+                <tr style="background-color: #f0f0f0; border-top: 2px solid #333; border-bottom: 2px solid #333;">
+                    <td style="padding: 6px 10px 6px 0; text-align: right; font-weight: bold; font-size: 12px;">NET TOTAL:</td>
+                    <td style="padding: 6px 5px; text-align: right; font-weight: bold; font-size: 12px;">Rs. ${Number(grandTotal).toFixed(2)}</td>
+                </tr>
+
+            </table>
+            <div style="clear: both;"></div>
           </div>
+
         </body>
       </html>
     `;
@@ -179,12 +216,15 @@ export default function ReportsScreen() {
   const renderInvoice = ({ item }) => {
 
     const paddedInvoiceNumber = item.invoiceNumber ? String(item.invoiceNumber).padStart(3, '0') : 'N/A';
+    
+    // Use billDate for display
+    const displayDate = new Date(item.billDate).toLocaleDateString('en-GB');
 
     return (
       <Card style={styles.card}>
       <Card.Title
         title={`Invoice #${paddedInvoiceNumber} - ${item.customerName}`}
-        subtitle={`Date: ${new Date(item.createdAt).toLocaleDateString()}`}
+        subtitle={`Invoice Date: ${displayDate}`}
         right={(props) => <Text {...props} style={styles.total}>Rs. {Number(item.total).toFixed(2)}</Text>}
       />
       <Card.Content>
@@ -243,11 +283,13 @@ export default function ReportsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.datePickerContainer}>
-        <Button icon="calendar" mode="outlined" onPress={() => showDatePicker('start')} style={styles.dateButton}>
-          Start: {startDate.toLocaleDateString()}
+        <Button icon="calendar" mode="outlined" onPress={() => showDatePicker('start')} style={styles.dateButton} uppercase={false}>
+          {/* FIX: Show date in DD/MM/YYYY */}
+          Start: {startDate.toLocaleDateString('en-GB')}
         </Button>
-        <Button icon="calendar" mode="outlined" onPress={() => showDatePicker('end')} style={styles.dateButton}>
-          End: {endDate.toLocaleDateString()}
+        <Button icon="calendar" mode="outlined" onPress={() => showDatePicker('end')} style={styles.dateButton} uppercase={false}>
+          {/* FIX: Show date in DD/MM/YYYY */}
+          End: {endDate.toLocaleDateString('en-GB')}
         </Button>
       </View>
 

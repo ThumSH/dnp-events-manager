@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Alert, Modal } from 'react-native';
-import { Button, Card, Text, ActivityIndicator, IconButton, TextInput } from 'react-native-paper';;
+import { Button, Card, Text, ActivityIndicator, IconButton, TextInput, Surface } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { getEquipment, updateEquipment, deleteEquipment } from '../config/storage';
 
 export default function ViewEquipmentScreen() {
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // NEW: Search state
+
+  // Edit Modal State
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
 
@@ -29,6 +32,11 @@ export default function ViewEquipmentScreen() {
     }, [])
   );
 
+  // NEW: Filter logic
+  const filteredEquipment = equipment.filter(item => 
+    (item.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleDelete = (itemId, itemName) => {
     Alert.alert(
       "Delete Item",
@@ -42,7 +50,7 @@ export default function ViewEquipmentScreen() {
             try {
               await deleteEquipment(itemId);
               Alert.alert("Success", `${itemName} has been deleted.`);
-              fetchEquipment(); // Refresh the list
+              fetchEquipment();
             } catch (error) {
               Alert.alert("Error", "Could not delete item.");
             }
@@ -64,8 +72,8 @@ export default function ViewEquipmentScreen() {
   const handleSaveChanges = async () => {
     if (!editingItem) return;
     try {
-         const itemToSave = { ...editingItem };
-        await updateEquipment(editingItem.id, {
+      const itemToSave = { ...editingItem };
+      await updateEquipment(editingItem.id, {
         name: itemToSave.name,
         quantity: parseInt(itemToSave.quantity) || 0,
         price: parseFloat(itemToSave.price) || 0,
@@ -73,7 +81,7 @@ export default function ViewEquipmentScreen() {
       setIsEditModalVisible(false);
       setEditingItem(null);
       Alert.alert("Success", "Item details updated.");
-      fetchEquipment(); // Refresh list
+      fetchEquipment();
     } catch (error) {
       Alert.alert("Error", "Could not update details.");
     }
@@ -99,11 +107,25 @@ export default function ViewEquipmentScreen() {
 
   return (
     <View style={styles.container}>
+      {/* NEW: Search Bar Surface */}
+      <Surface style={styles.searchContainer} elevation={2}>
+        <TextInput 
+          placeholder="Search items..." 
+          value={searchQuery} 
+          onChangeText={setSearchQuery} 
+          mode="outlined"
+          style={styles.searchInput}
+          left={<TextInput.Icon icon="magnify" color="#666" />}
+          right={searchQuery ? <TextInput.Icon icon="close" onPress={() => setSearchQuery('')} /> : null}
+        />
+      </Surface>
+
       <FlatList
-        data={equipment}
+        data={filteredEquipment} // Use filtered list
         renderItem={renderItem}
         keyExtractor={item => item.id}
         ListEmptyComponent={<Text style={styles.emptyText}>No equipment found.</Text>}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
 
       {editingItem && (
@@ -126,6 +148,16 @@ export default function ViewEquipmentScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: '#f5f5f5' },
+  searchContainer: {
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  searchInput: {
+    backgroundColor: 'white',
+    height: 45,
+  },
   card: { marginVertical: 8, backgroundColor: 'white' },
   emptyText: { textAlign: 'center', marginTop: 50, color: '#888' },
   modalView: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', marginTop: 40 },

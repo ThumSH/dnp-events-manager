@@ -2,7 +2,7 @@
   "expo": {
     "name": "Dnp",
     "slug": "Dnp",
-    "version": "1.0.5", 
+    "version": "1.0.7", 
     "orientation": "portrait",
     "icon": "./assets/dnpLogo.png",
     "userInterfaceStyle": "light",
@@ -21,7 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.dnp.events",
-      "versionCode": 5,
+      "versionCode": 7,
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",

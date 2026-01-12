@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Alert, Modal } from 'react-native';
-import { Button, Card, Text, ActivityIndicator, IconButton, TextInput } from 'react-native-paper';
+import { Button, Card, Text, ActivityIndicator, IconButton, TextInput, Surface } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCustomers, updateCustomer, deleteCustomer } from '../config/storage';
 
 export default function ViewCustomersScreen() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // NEW: Search state
+  
+  // Edit Modal State
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
 
@@ -23,11 +26,16 @@ export default function ViewCustomersScreen() {
     }
   };
 
-  // useFocusEffect will re-fetch data every time the screen comes into view
   useFocusEffect(
     useCallback(() => {
       fetchCustomers();
     }, [])
+  );
+
+  // NEW: Filter logic
+  const filteredCustomers = customers.filter(c => 
+    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.phone || '').includes(searchQuery)
   );
 
   const handleDelete = (customerId, customerName) => {
@@ -43,7 +51,7 @@ export default function ViewCustomersScreen() {
             try {
               await deleteCustomer(customerId);
               Alert.alert("Success", `${customerName} has been deleted.`);
-              fetchCustomers(); // Refresh the list
+              fetchCustomers(); 
             } catch (error) {
               Alert.alert("Error", "Could not delete customer.");
             }
@@ -65,7 +73,7 @@ export default function ViewCustomersScreen() {
       setIsEditModalVisible(false);
       setEditingCustomer(null);
       Alert.alert("Success", "Customer details updated.");
-      fetchCustomers(); // Refresh list
+      fetchCustomers(); 
     } catch (error) {
       Alert.alert("Error", "Could not update details.");
     }
@@ -92,11 +100,25 @@ export default function ViewCustomersScreen() {
 
   return (
     <View style={styles.container}>
+      {/* NEW: Search Bar Surface */}
+      <Surface style={styles.searchContainer} elevation={2}>
+        <TextInput 
+          placeholder="Search customers..." 
+          value={searchQuery} 
+          onChangeText={setSearchQuery} 
+          mode="outlined"
+          style={styles.searchInput}
+          left={<TextInput.Icon icon="magnify" color="#666" />}
+          right={searchQuery ? <TextInput.Icon icon="close" onPress={() => setSearchQuery('')} /> : null}
+        />
+      </Surface>
+
       <FlatList
-        data={customers}
+        data={filteredCustomers} // Use filtered list
         renderItem={renderCustomer}
         keyExtractor={item => item.id}
         ListEmptyComponent={<Text style={styles.emptyText}>No customers found.</Text>}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
 
       {editingCustomer && (
@@ -120,6 +142,16 @@ export default function ViewCustomersScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: '#f5f5f5' },
+  searchContainer: {
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  searchInput: {
+    backgroundColor: 'white',
+    height: 45,
+  },
   card: { marginVertical: 8, backgroundColor: 'white' },
   emptyText: { textAlign: 'center', marginTop: 50, color: '#888' },
   modalView: { flex: 1, padding: 20, backgroundColor: '#f5f5f5', marginTop: 40 },
