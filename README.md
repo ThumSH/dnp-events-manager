@@ -168,38 +168,31 @@ This was required to support modern Android file-access rules and allow invoices
 │               │  │                 │
 │ Cloud Data    │  │ Local Storage   │
 └───────────────┘  └─────────────────┘
-| Area             | Technology         |
-| ---------------- | ------------------ |
-| Mobile Framework | React Native       |
-| Platform         | Expo               |
-| Language         | JavaScript         |
-| Navigation       | React Navigation   |
-| Backend          | Firebase           |
-| Local Storage    | AsyncStorage       |
-| PDF Generation   | Expo Print         |
-| File Handling    | Expo File System   |
-| Sharing          | Expo Sharing       |
-| UI               | React Native Paper |
-| Build System     | Expo EAS           |
+```
 
+---
 
-🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-Area	Technology
-Mobile Framework	React Native
-Platform	Expo
-Language	JavaScript
-Navigation	React Navigation
-Backend	Firebase
-Local Storage	AsyncStorage
-PDF Generation	Expo Print
-File Handling	Expo File System
-Sharing	Expo Sharing
-UI	React Native Paper
-Build System	Expo EAS
+| Area | Technology |
+|---|---|
+| Mobile Framework | React Native |
+| Platform | Expo |
+| Language | JavaScript |
+| Navigation | React Navigation |
+| Backend | Firebase |
+| Local Storage | AsyncStorage |
+| PDF Generation | Expo Print |
+| File Handling | Expo File System |
+| Sharing | Expo Sharing |
+| UI | React Native Paper |
+| Build System | Expo EAS |
 
-🔄 Example Business Workflow
+---
 
+# 🔄 Example Business Workflow
+
+```text
 Client Request
       ↓
 Create / Select Client
@@ -215,24 +208,39 @@ Generate Invoice
 Save PDF
       ↓
 Share with Client
+```
 
-📸 Screenshots
+---
 
-Add screenshots here:
-1. Home / Dashboard
-  <img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/1344f15e-e428-4af6-b8ab-2a4c6cfcd2a0" />
+# 📸 Screenshots
 
-2.Customer Management /Creation
-  <img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/4f484b5d-fa67-4a1e-912c-3228c32e0d56" />
+## 1. Home / Dashboard
 
-3. Inventory
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/358ac61f-33d9-4e2f-805e-5baebf543950" />
+<img width="360" alt="DNP Events Dashboard" src="https://github.com/user-attachments/assets/1344f15e-e428-4af6-b8ab-2a4c6cfcd2a0" />
 
-4. Invoice Preview
-    <img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/21ac9fe9-7b8d-43dc-ac1d-d181a71f5458" />
+---
 
-5.History Management.
-  <img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/a1948ccc-8dbd-4c12-bcf1-2a19778d9245" />
+## 2. Customer Management / Creation
+
+<img width="360" alt="DNP Events Customer Management" src="https://github.com/user-attachments/assets/4f484b5d-fa67-4a1e-912c-3228c32e0d56" />
+
+---
+
+## 3. Inventory Management
+
+<img width="360" alt="DNP Events Inventory" src="https://github.com/user-attachments/assets/358ac61f-33d9-4e2f-805e-5baebf543950" />
+
+---
+
+## 4. Invoice Preview
+
+<img width="360" alt="DNP Events Invoice Preview" src="https://github.com/user-attachments/assets/21ac9fe9-7b8d-43dc-ac1d-d181a71f5458" />
+
+---
+
+## 5. History Management
+
+<img width="360" alt="DNP Events History Management" src="https://github.com/user-attachments/assets/a1948ccc-8dbd-4c12-bcf1-2a19778d9245" />
 
 ---
 
@@ -269,24 +277,49 @@ This project demonstrates experience with:
 
 ```bash
 npm install
+```
 
-📦 Production Builds
+## Start development server
 
-The application uses Expo EAS for creating production builds.
+```bash
+npx expo start
+```
+
+## Run Android
+
+```bash
+npm run android
+```
+
+## Run iOS
+
+```bash
+npm run ios
+```
+
+---
+
+# 📦 Production Builds
+
+The application uses **Expo EAS** for creating production builds.
 
 This allows standalone Android builds to be generated for direct installation on client devices.
 
-🚧 Project Status
+---
 
-Client Project
+# 🚧 Project Status
+
+**Client Project**
 
 Core business functionality has been implemented for operational use.
 
 Further improvements may be added based on evolving client requirements.
 
-👨‍💻 Developer
+---
 
-Sithum Hemash
+# 👨‍💻 Developer
+
+**Sithum Hemash**
 
 Full-Stack Developer & Software Engineering Undergraduate
 
@@ -294,9 +327,6 @@ GitHub:
 
 https://github.com/ThumSH
 
-Built to replace manual event and rental workflows with a practical mobile business system.
+---
 
-
-
-
-  
+> Built to replace manual event and rental workflows with a practical mobile business system.
